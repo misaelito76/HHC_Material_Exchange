@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content=
+    "width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+    
+    <div  style="text-align: center"class="container">
+      <br> <br>
+    <h3 style="color:darkorange;text-align: center;">HCC book finder</h3>
+    <h3>Current User :
+      <p style="color: blue;" id="email"></p></h3>
+    <h3> Book Name : <br>  <input style="color:cornflowerblue" id="book"label="book name"></h3> 
+    <h3> Author: <br>  <input style="color:cornflowerblue" id="author"label="book name"></h3><br> 
+    <h3> ISBN#: <br>  <input style="color:cornflowerblue"id="isbn"label="book name"></h3><br>
+    <h3> Start date: <br>
+        <input style="color:cornflowerblue"type="date" id="retrieve"label="book name"></h3> 
+    <h3> Return date: 
+      <br>  <input type="date" id="returnD"label="book name"></h3> 
+
+
+
+       <h3>add book:<i id="scans"></i></h3>
+    <button id="firebaseEvent" class="btn btn-outline-primary btn-block ">ADD_BOOK</button>
+    <br> <br>
+    <footer >
+      <p>Authors: Misael J,John M,Sonia R,Jordan F</p>
+      <p>Class: Systems Analysis</p>
+      <p>Instructor: Mubarak Banisaker</p>
+      <p><a href="mailto:jmisael56@yahoo.com">HCC@book.finder.com</a></p>
+    </footer>
+
+  </div>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-app.js";
+      import {
+        getFirestore,
+        addDoc,
+        collection,
+        setDoc,
+        doc,
+        getDocs,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyC-A2oJvzCKIw_rpEsMIj0FiA5M8LaPLWE",
+  authDomain: "books-530ec.firebaseapp.com",
+  projectId: "books-530ec",
+  storageBucket: "books-530ec.appspot.com",
+  messagingSenderId: "1058522236562",
+  appId: "1:1058522236562:web:4270a3c96d0171f01fc84b"
+      };
+
+      let count = 0;
+      let  BOOK=""
+      let AUTHOR=""
+      let ISBN=""
+      let RETRIEVE=""
+      let RETURND=""
+      let emailAddress=document.getElementById("email")
+      let counter=document.getElementById("scans")
+      let book =document.getElementById("book")
+      let author=document.getElementById("author")
+      let isbn=document.getElementById("isbn")
+      let retrieve=document.getElementById("retrieve")
+      let returnD=document.getElementById("returnD")
+
+      function counting() {
+        count++;
+        document.getElementById("scans").innerHTML = count;
+        BOOK=book.value
+        AUTHOR=author.value
+        ISBN=isbn.value
+        RETRIEVE=retrieve.value
+RETURND=returnD.value
+      }
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      let email = "{{.}}";
+     
+      firebaseEvent.addEventListener("click", (e) => {
+        counting();
+        setDoc(doc(db, "ISBN#", email), {
+          //Page: "Scanned Doc",
+          Count: count,
+          Book:BOOK,
+          Author:AUTHOR,
+          Isbn :ISBN,
+          retrieve_date:RETRIEVE,
+          return_date:RETURND
+        });
+      });
+      //Collection Reference
+      const colRef = collection(db, "ISBN#");
+      getDocs(colRef)
+        .then((snapshot) => {
+          let pages = [];
+          snapshot.docs.forEach((element) => {
+            pages.push({ ...element.data(), id: element.id });
+          });
+          for (let i = 0; i < pages.length; i++) {
+            if (email != pages[i].id) {
+              console.log(pages[i]);
+              emailAddress.innerHTML = email;
+              counter.innerHTML = count;
+            } else {
+              count = pages[i].Count;
+              email = pages[i].id;
+              counter.innerHTML = count;
+              emailAddress.innerHTML = email;
+            }
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    </script>
+  </body>
+</html>
